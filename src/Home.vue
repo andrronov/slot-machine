@@ -76,6 +76,7 @@ onMounted(() => {
   display: flex;
   justify-content: center;
   align-items: center;
+  background: linear-gradient(to bottom, #000000, #0e3b2d);
 }
 
 .slot-machine {
@@ -94,7 +95,7 @@ onMounted(() => {
 
 .canvas-container {
   width: 640px;
-  height: 360px;
+  height: 325px;
   background: #0f0f1a;
   border: 4px solid #2d2d44;
   border-radius: 12px;

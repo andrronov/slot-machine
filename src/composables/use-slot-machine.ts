@@ -6,8 +6,10 @@ import {
   Sprite,
   BlurFilter,
   ResizePlugin,
+  Graphics,
 } from "pixi.js";
 import gsap from "gsap";
+import { IS_PROD } from "../config";
 
 type Reel = {
   container: Container;
@@ -17,9 +19,15 @@ type Reel = {
   blur: BlurFilter;
 };
 
+declare global {
+  interface Window {
+    __PIXI_APP__?: Application;
+  }
+}
+
 const SYMBOL_SIZE = 80 as const;
 const REEL_WIDTH = 90 as const;
-const SYMBOLS_PER_REEL = 4 as const;
+const SYMBOLS_PER_REEL = 7 as const;
 const REELS_COUNT = 6 as const;
 
 export const useSlotMachine = () => {
@@ -32,9 +40,11 @@ export const useSlotMachine = () => {
   let slotTextures: any[] = [];
 
   const initPixi = async (canvasContainer: HTMLElement) => {
+    if (!IS_PROD) {
+      window.__PIXI_APP__ = app;
+    }
+
     await app.init({
-      // width: 640,
-      // height: 360,
       backgroundAlpha: 0,
       antialias: true,
       resizeTo: canvasContainer,
@@ -60,8 +70,22 @@ export const useSlotMachine = () => {
 
   const buildReels = () => {
     const reelContainer = new Container();
-    reelContainer.y = 100;
+    reelContainer.y = 0;
     reelContainer.x = 50;
+
+    const graphics = new Graphics();
+    const mask = graphics
+      .rect(
+        50,
+        0,
+        REEL_WIDTH * REELS_COUNT,
+        SYMBOL_SIZE * (SYMBOLS_PER_REEL - 3) + 5,
+      )
+      .fill("red");
+
+    app.stage.addChild(mask);
+
+    reelContainer.mask = mask;
 
     for (let i = 0; i < REELS_COUNT; i++) {
       const rc = new Container();
@@ -117,6 +141,7 @@ export const useSlotMachine = () => {
         onComplete: () => {
           if (i === reels.length - 1) {
             isSpinning.value = false;
+            console.log(reels);
             checkWin();
           }
         },
