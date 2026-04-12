@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useTemplateRef, onMounted } from "vue";
-import { useSlotMachine } from "./composables/use-slot-machine";
+import { useSlotMachine } from "../composables/use-slot-machine";
 
 const pixiContainer = useTemplateRef<HTMLElement | null>("pixiContainer");
 

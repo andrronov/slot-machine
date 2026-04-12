@@ -3,7 +3,7 @@ import baseConfig from "./codestyle/config-eslint/base.js";
 export default [
   {
     name: "app/files-to-lint",
-    files: ["**/*.{js,vue}"],
+    files: ["**/*.{js,vue,ts}"],
   },
 
   {

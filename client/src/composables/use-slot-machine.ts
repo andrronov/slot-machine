@@ -1,15 +1,20 @@
-import { ref, onUnmounted, type Ref } from "vue";
+import { ref, onUnmounted } from "vue";
 import {
   Application,
   Assets,
   Container,
   Sprite,
   BlurFilter,
-  ResizePlugin,
   Graphics,
 } from "pixi.js";
 import gsap from "gsap";
-import { IS_PROD } from "../config";
+import {
+  IS_PROD,
+  REELS_COUNT,
+  REEL_WIDTH,
+  SYMBOLS_PER_REEL,
+  SYMBOL_SIZE,
+} from "../config";
 
 type Reel = {
   container: Container;
@@ -18,17 +23,19 @@ type Reel = {
   previousPosition: number;
   blur: BlurFilter;
 };
+type WinningLine = {
+  lineIndex: number;
+  symbolId: number;
+  matchCount: number;
+  amount: number;
+};
+type SlotMatrix = number[][];
 
 declare global {
   interface Window {
     __PIXI_APP__?: Application;
   }
 }
-
-const SYMBOL_SIZE = 80 as const;
-const REEL_WIDTH = 90 as const;
-const SYMBOLS_PER_REEL = 7 as const;
-const REELS_COUNT = 6 as const;
 
 export const useSlotMachine = () => {
   const balance = ref(500);
@@ -124,8 +131,26 @@ export const useSlotMachine = () => {
     app.stage.addChild(reelContainer);
   };
 
-  const spin = () => {
+  const fetchResult = async () => {
+    const result = await fetch("http://localhost:3124/spin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ stake: stake.value }),
+    });
+    const data = (await result.json()) as {
+      win: number;
+      winningLines: WinningLine[];
+      serverResult: SlotMatrix;
+    };
+    return data;
+  };
+
+  const spin = async () => {
     if (isSpinning.value || balance.value < stake.value) return;
+
+    const { win, winningLines, serverResult } = await fetchResult();
 
     isSpinning.value = true;
     balance.value -= stake.value;
