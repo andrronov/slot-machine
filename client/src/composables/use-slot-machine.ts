@@ -14,28 +14,9 @@ import {
   REEL_WIDTH,
   SYMBOLS_PER_REEL,
   SYMBOL_SIZE,
+  PAYLINES,
 } from "../config";
-
-type Reel = {
-  container: Container;
-  symbols: Sprite[];
-  position: number;
-  previousPosition: number;
-  blur: BlurFilter;
-};
-type WinningLine = {
-  lineIndex: number;
-  symbolId: number;
-  matchCount: number;
-  amount: number;
-};
-type SlotMatrix = number[][];
-
-declare global {
-  interface Window {
-    __PIXI_APP__?: Application;
-  }
-}
+import type { Reel, WinningLine, SlotMatrix } from "../types";
 
 export const useSlotMachine = () => {
   const balance = ref(500);
@@ -45,6 +26,7 @@ export const useSlotMachine = () => {
   const app = new Application();
   const reels: Reel[] = [];
   let slotTextures: any[] = [];
+  const winSymbolGraphics = new Graphics();
 
   const initPixi = async (canvasContainer: HTMLElement) => {
     if (!IS_PROD) {
@@ -88,7 +70,7 @@ export const useSlotMachine = () => {
         REEL_WIDTH * REELS_COUNT,
         SYMBOL_SIZE * (SYMBOLS_PER_REEL - 3) + 5,
       )
-      .fill("red");
+      .fill("0x000000");
 
     app.stage.addChild(mask);
 
@@ -110,6 +92,7 @@ export const useSlotMachine = () => {
         position: 0,
         previousPosition: 0,
         blur: blurFilter,
+        textureQueue: [],
       };
 
       for (let j = 0; j < SYMBOLS_PER_REEL; j++) {
@@ -129,6 +112,29 @@ export const useSlotMachine = () => {
       reels.push(reel);
     }
     app.stage.addChild(reelContainer);
+
+    winSymbolGraphics.x = 50;
+    winSymbolGraphics.y = 0;
+    app.stage.addChild(winSymbolGraphics);
+  };
+
+  const drawWinningSymbols = (winningLines: WinningLine[]) => {
+    winSymbolGraphics.clear();
+
+    winningLines.forEach((win) => {
+      const linePath = PAYLINES[win.lineIndex];
+
+      for (let i = 0; i < win.matchCount; i++) {
+        const [col, row] = linePath[i];
+
+        const x = col * REEL_WIDTH - 5;
+        const y = row * SYMBOL_SIZE;
+
+        winSymbolGraphics
+          .rect(x, y, REEL_WIDTH, SYMBOL_SIZE)
+          .stroke({ width: 2.5, color: "#FFD700" });
+      }
+    });
   };
 
   const fetchResult = async () => {
@@ -150,6 +156,7 @@ export const useSlotMachine = () => {
   const spin = async () => {
     if (isSpinning.value || balance.value < stake.value) return;
 
+    winSymbolGraphics.clear();
     const { win, winningLines, serverResult } = await fetchResult();
 
     isSpinning.value = true;
@@ -157,25 +164,43 @@ export const useSlotMachine = () => {
 
     reels.forEach((r, i) => {
       const extraLoops = Math.floor(Math.random() * 3);
-      const targetPosition = r.position + 10 + i * 5 + extraLoops;
+      const targetPosition = Math.ceil(r.position) + 15 + i * 5 + extraLoops;
+
+      const steps = Math.floor(targetPosition - r.position);
+
+      r.textureQueue = [];
+      for (let k = 0; k < steps - 5; k++) {
+        r.textureQueue.push(Math.floor(Math.random() * slotTextures.length));
+      }
+
+      r.textureQueue.push(serverResult[i][3]);
+      r.textureQueue.push(serverResult[i][2]);
+      r.textureQueue.push(serverResult[i][1]);
+      r.textureQueue.push(serverResult[i][0]);
+      r.textureQueue.push(Math.floor(Math.random() * slotTextures.length));
 
       gsap.to(r, {
         position: targetPosition,
-        duration: 1.75 + i * 0.6,
+        duration: 1.75 + i * 0.35,
         ease: "back.out(0.4)",
         onComplete: () => {
           if (i === reels.length - 1) {
             isSpinning.value = false;
-            console.log(reels);
-            checkWin();
+            checkWin(win, winningLines);
           }
         },
       });
     });
   };
 
-  const checkWin = () => {
-    console.log("Спин окончен. Проверяем матрицу...");
+  const checkWin = (winAmount: number, lines: WinningLine[]) => {
+    if (winAmount > 0) {
+      console.log(`🤑 БОМБА! ВЫИГРЫШ: $${winAmount} 🤑`);
+
+      drawWinningSymbols(lines);
+
+      balance.value += winAmount;
+    }
   };
 
   const startTicker = () => {
@@ -191,8 +216,14 @@ export const useSlotMachine = () => {
             ((r.position + j) % r.symbols.length) * SYMBOL_SIZE - SYMBOL_SIZE;
 
           if (s.y < 0 && prevy > SYMBOL_SIZE) {
-            s.texture =
-              slotTextures[Math.floor(Math.random() * slotTextures.length)];
+            let nextId;
+            if (r.textureQueue.length > 0) {
+              nextId = r.textureQueue.shift() as number;
+            } else {
+              nextId = Math.floor(Math.random() * slotTextures.length);
+            }
+
+            s.texture = slotTextures[nextId];
             s.scale.set(
               Math.min(
                 SYMBOL_SIZE / s.texture.width,

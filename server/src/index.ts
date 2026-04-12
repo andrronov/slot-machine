@@ -19,10 +19,10 @@ app.get("/test", (req, res) => {
   res.json({ message: "OK!", code: 200 });
 });
 
-app.post("/spin", (req, res) => {
+app.post("/spin", async (req, res) => {
   const { stake } = req.body;
-  const { win, winningLines } = checkWin(stake);
-  res.json({ win, winningLines });
+  const { win, winningLines, serverResult } = checkWin(stake);
+  res.json({ win, winningLines, serverResult });
 });
 
 app.listen(PORT, () => {
