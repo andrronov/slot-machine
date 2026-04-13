@@ -1,0 +1,50 @@
+import { ref } from "vue";
+import type { SpinResult } from "../types";
+
+export const useSlotState = () => {
+  const balance = ref(500);
+  const stake = ref(1);
+  const spinning = ref(false);
+
+  const deductBalance = (amount: number) => {
+    balance.value -= amount;
+  };
+  const addBalance = (amount: number) => {
+    if (amount > 0) {
+      balance.value += amount;
+    }
+  };
+
+  const increaseStake = () => {
+    stake.value += 1;
+  };
+  const decreaseStake = () => {
+    stake.value = Math.max(1, stake.value - 1);
+  };
+
+  const fetchResult = async () => {
+    const result = await fetch("http://localhost:3124/spin", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ stake: stake.value }),
+    });
+    const data = (await result.json()) as SpinResult;
+    return data;
+  };
+
+  return {
+    balance,
+    stake,
+    spinning,
+
+    deductBalance,
+    addBalance,
+
+    increaseStake,
+    decreaseStake,
+
+    fetchResult,
+  };
+};

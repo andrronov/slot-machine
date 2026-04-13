@@ -1,4 +1,3 @@
-import { ref, onUnmounted } from "vue";
 import {
   Application,
   Assets,
@@ -18,35 +17,36 @@ import {
 } from "../config";
 import type { Reel, WinningLine, SlotMatrix } from "../types";
 
-export const useSlotMachine = () => {
-  const balance = ref(500);
-  const stake = ref(1);
-  const isSpinning = ref(false);
+export class SlotEngine {
+  public app: Application;
+  private reels: Reel[] = [];
+  private slotTextures: any[] = [];
+  private winSymbolGraphics: Graphics;
 
-  const app = new Application();
-  const reels: Reel[] = [];
-  let slotTextures: any[] = [];
-  const winSymbolGraphics = new Graphics();
+  constructor() {
+    this.app = new Application();
+    this.winSymbolGraphics = new Graphics();
+  }
 
-  const initPixi = async (canvasContainer: HTMLElement) => {
+  public async init(canvasContainer: HTMLElement) {
     if (!IS_PROD) {
-      window.__PIXI_APP__ = app;
+      window.__PIXI_APP__ = this.app;
     }
 
-    await app.init({
+    await this.app.init({
       backgroundAlpha: 0,
       antialias: true,
       resizeTo: canvasContainer,
     });
 
-    canvasContainer.appendChild(app.canvas);
+    canvasContainer.appendChild(this.app.canvas);
 
-    await loadAssets();
-    buildReels();
-    startTicker();
-  };
+    await this.loadAssets();
+    this.buildReels();
+    this.startTicker();
+  }
 
-  const loadAssets = async () => {
+  private async loadAssets() {
     const urls = [
       "https://i.imgur.com/hpjuqb1.png",
       "https://i.imgur.com/S2GtCJP.png",
@@ -54,10 +54,10 @@ export const useSlotMachine = () => {
       "https://i.imgur.com/9za3Pl0.png",
     ];
 
-    slotTextures = await Promise.all(urls.map((url) => Assets.load(url)));
-  };
+    this.slotTextures = await Promise.all(urls.map((url) => Assets.load(url)));
+  }
 
-  const buildReels = () => {
+  private buildReels() {
     const reelContainer = new Container();
     reelContainer.y = 0;
     reelContainer.x = 50;
@@ -72,7 +72,7 @@ export const useSlotMachine = () => {
       )
       .fill("0x000000");
 
-    app.stage.addChild(mask);
+    this.app.stage.addChild(mask);
 
     reelContainer.mask = mask;
 
@@ -97,7 +97,9 @@ export const useSlotMachine = () => {
 
       for (let j = 0; j < SYMBOLS_PER_REEL; j++) {
         const texture =
-          slotTextures[Math.floor(Math.random() * slotTextures.length)];
+          this.slotTextures[
+            Math.floor(Math.random() * this.slotTextures.length)
+          ];
         const symbol = new Sprite(texture);
 
         symbol.y = j * SYMBOL_SIZE;
@@ -109,17 +111,17 @@ export const useSlotMachine = () => {
         reel.symbols.push(symbol);
         rc.addChild(symbol);
       }
-      reels.push(reel);
+      this.reels.push(reel);
     }
-    app.stage.addChild(reelContainer);
+    this.app.stage.addChild(reelContainer);
 
-    winSymbolGraphics.x = 50;
-    winSymbolGraphics.y = 0;
-    app.stage.addChild(winSymbolGraphics);
-  };
+    this.winSymbolGraphics.x = 50;
+    this.winSymbolGraphics.y = 0;
+    this.app.stage.addChild(this.winSymbolGraphics);
+  }
 
-  const drawWinningSymbols = (winningLines: WinningLine[]) => {
-    winSymbolGraphics.clear();
+  private drawWinningSymbols(winningLines: WinningLine[]) {
+    this.winSymbolGraphics.clear();
 
     winningLines.forEach((win) => {
       const linePath = PAYLINES[win.lineIndex];
@@ -130,82 +132,84 @@ export const useSlotMachine = () => {
         const x = col * REEL_WIDTH - 5;
         const y = row * SYMBOL_SIZE;
 
-        winSymbolGraphics
+        this.winSymbolGraphics
           .rect(x, y, REEL_WIDTH, SYMBOL_SIZE)
           .stroke({ width: 2.5, color: "#FFD700" });
       }
     });
-  };
+  }
 
-  const fetchResult = async () => {
-    const result = await fetch("http://localhost:3124/spin", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ stake: stake.value }),
+  public startSpin() {
+    this.winSymbolGraphics.clear();
+    this.reels.forEach((r) => {
+      r.textureQueue = [];
+
+      gsap.to(r, {
+        position: "+=1000",
+        duration: 15,
+        ease: "power1.in",
+      });
     });
-    const data = (await result.json()) as {
-      win: number;
-      winningLines: WinningLine[];
-      serverResult: SlotMatrix;
-    };
-    return data;
-  };
+  }
 
-  const spin = async () => {
-    if (isSpinning.value || balance.value < stake.value) return;
-
-    winSymbolGraphics.clear();
-    const { win, winningLines, serverResult } = await fetchResult();
-
-    isSpinning.value = true;
-    balance.value -= stake.value;
-
-    reels.forEach((r, i) => {
+  public async completeSpin(serverResult: SlotMatrix, onComplete?: () => void) {
+    this.reels.forEach((r, i) => {
       const extraLoops = Math.floor(Math.random() * 3);
       const targetPosition = Math.ceil(r.position) + 15 + i * 5 + extraLoops;
 
-      const steps = Math.floor(targetPosition - r.position);
+      const steps = targetPosition - Math.floor(r.position);
 
       r.textureQueue = [];
       for (let k = 0; k < steps - 5; k++) {
-        r.textureQueue.push(Math.floor(Math.random() * slotTextures.length));
+        r.textureQueue.push(
+          Math.floor(Math.random() * this.slotTextures.length),
+        );
       }
 
       r.textureQueue.push(serverResult[i][3]);
       r.textureQueue.push(serverResult[i][2]);
       r.textureQueue.push(serverResult[i][1]);
       r.textureQueue.push(serverResult[i][0]);
-      r.textureQueue.push(Math.floor(Math.random() * slotTextures.length));
+      r.textureQueue.push(Math.floor(Math.random() * this.slotTextures.length));
 
       gsap.to(r, {
         position: targetPosition,
         duration: 1.75 + i * 0.35,
         ease: "back.out(0.4)",
+        overwrite: true,
         onComplete: () => {
-          if (i === reels.length - 1) {
-            isSpinning.value = false;
-            checkWin(win, winningLines);
+          if (i === this.reels.length - 1) {
+            onComplete?.();
           }
         },
       });
     });
-  };
+  }
 
-  const checkWin = (winAmount: number, lines: WinningLine[]) => {
+  public stopSpin(onComplete?: () => void) {
+    this.reels.forEach((r, i) => {
+      gsap.to(r, {
+        position: Math.ceil(r.position) + 2,
+        duration: 0.5,
+        overwrite: true,
+        onComplete: () => {
+          if (i === this.reels.length - 1) {
+            onComplete?.();
+          }
+        },
+      });
+    });
+  }
+
+  public checkWin(winAmount: number, lines: WinningLine[]) {
     if (winAmount > 0) {
-      console.log(`🤑 БОМБА! ВЫИГРЫШ: $${winAmount} 🤑`);
-
-      drawWinningSymbols(lines);
-
-      balance.value += winAmount;
+      this.drawWinningSymbols(lines);
     }
-  };
+  }
 
-  const startTicker = () => {
-    app.ticker.add(() => {
-      for (const r of reels) {
+  private startTicker() {
+    this.app.ticker.add(() => {
+      for (const r of this.reels) {
         r.blur.strengthY = (r.position - r.previousPosition) * 80;
         r.previousPosition = r.position;
 
@@ -220,10 +224,10 @@ export const useSlotMachine = () => {
             if (r.textureQueue.length > 0) {
               nextId = r.textureQueue.shift() as number;
             } else {
-              nextId = Math.floor(Math.random() * slotTextures.length);
+              nextId = Math.floor(Math.random() * this.slotTextures.length);
             }
 
-            s.texture = slotTextures[nextId];
+            s.texture = this.slotTextures[nextId];
             s.scale.set(
               Math.min(
                 SYMBOL_SIZE / s.texture.width,
@@ -235,17 +239,9 @@ export const useSlotMachine = () => {
         }
       }
     });
-  };
+  }
 
-  onUnmounted(() => {
-    app.destroy(true, true);
-  });
-
-  return {
-    initPixi,
-    spin,
-    balance,
-    stake,
-    isSpinning,
-  };
-};
+  public destroy() {
+    this.app.destroy(true, true);
+  }
+}

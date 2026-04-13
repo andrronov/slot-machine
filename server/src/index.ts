@@ -20,9 +20,21 @@ app.get("/test", (req, res) => {
 });
 
 app.post("/spin", async (req, res) => {
-  const { stake } = req.body;
+  const { stake, mockError } = req.body;
   const { win, winningLines, serverResult } = checkWin(stake);
-  res.json({ win, winningLines, serverResult });
+
+  const promise = new Promise((resolve, reject) => {
+    setTimeout(() => {
+      mockError ? reject(new Error("Timeout")) : resolve(true);
+    }, 500);
+  });
+
+  try {
+    await promise;
+    res.json({ win, winningLines, serverResult });
+  } catch (error) {
+    throw new Error();
+  }
 });
 
 app.listen(PORT, () => {

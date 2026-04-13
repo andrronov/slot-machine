@@ -16,4 +16,10 @@ export type WinningLine = {
   amount: number;
 };
 
+export type SpinResult = {
+  win: number;
+  winningLines: WinningLine[];
+  serverResult: SlotMatrix;
+};
+
 export type SlotMatrix = number[][];

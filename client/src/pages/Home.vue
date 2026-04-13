@@ -1,24 +1,51 @@
 <script setup lang="ts">
-import { useTemplateRef, onMounted } from "vue";
-import { useSlotMachine } from "../composables/use-slot-machine";
+import { useTemplateRef, computed, onMounted, onUnmounted } from "vue";
+import { SlotEngine } from "../features/slot-engine";
+import { useSlotState } from "../composables/use-slot-state";
 
 const pixiContainer = useTemplateRef<HTMLElement | null>("pixiContainer");
+const slot = new SlotEngine();
+const {
+  balance,
+  stake,
+  spinning,
+  deductBalance,
+  addBalance,
+  fetchResult,
+  decreaseStake,
+  increaseStake,
+} = useSlotState();
 
-const { initPixi, spin, balance, stake, isSpinning } = useSlotMachine();
+const canSpin = computed(() => !spinning.value && balance.value >= stake.value);
 
-const increaseStake = () => {
-  if (stake.value < 10) stake.value += 1;
-};
+const handleSpin = async () => {
+  if (!canSpin.value) return;
 
-const decreaseStake = () => {
-  if (stake.value > 1) stake.value -= 1;
+  spinning.value = true;
+  slot.startSpin();
+  deductBalance(stake.value);
+
+  try {
+    const { serverResult, win, winningLines } = await fetchResult();
+    slot.completeSpin(serverResult, () => {
+      slot.checkWin(win, winningLines);
+      addBalance(win);
+      spinning.value = false;
+    });
+  } catch (err) {
+    slot.stopSpin(() => {
+      addBalance(stake.value);
+      spinning.value = false;
+    });
+  }
 };
 
 onMounted(() => {
   if (pixiContainer.value) {
-    initPixi(pixiContainer.value);
+    slot.init(pixiContainer.value);
   }
 });
+onUnmounted(() => slot.destroy());
 </script>
 
 <template>
@@ -40,16 +67,16 @@ onMounted(() => {
       <footer class="ui-footer">
         <div class="stake-controls">
           <button
-            @click="decreaseStake"
-            :disabled="isSpinning || stake <= 1"
+            @click="decreaseStake()"
+            :disabled="spinning || stake <= 1"
             class="btn icon-btn"
           >
             -
           </button>
           <span class="stake-display">${{ stake }}</span>
           <button
-            @click="increaseStake"
-            :disabled="isSpinning || stake >= 10"
+            @click="increaseStake()"
+            :disabled="spinning || stake >= 10"
             class="btn icon-btn"
           >
             +
@@ -57,12 +84,12 @@ onMounted(() => {
         </div>
 
         <button
-          @click="spin"
-          :disabled="isSpinning || balance < stake"
+          @click="handleSpin"
+          :disabled="!canSpin"
           class="btn spin-btn"
-          :class="{ 'is-spinning': isSpinning }"
+          :class="{ 'is-spinning': !canSpin }"
         >
-          {{ isSpinning ? "SPINNING..." : "SPIN" }}
+          {{ spinning ? "SPINNING..." : "SPIN" }}
         </button>
       </footer>
     </div>
