@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { useTemplateRef, computed, onMounted, onUnmounted } from "vue";
+import { ref, useTemplateRef, computed, onMounted, onUnmounted } from "vue";
 import { SlotEngine } from "../features/slot-engine";
 import { useSlotState } from "../composables/use-slot-state";
 
@@ -16,12 +16,14 @@ const {
   increaseStake,
 } = useSlotState();
 
+const paylinesVisible = ref(false);
 const canSpin = computed(() => !spinning.value && balance.value >= stake.value);
 
 const handleSpin = async () => {
   if (!canSpin.value) return;
 
   spinning.value = true;
+  paylinesVisible.value = false;
   slot.startSpin();
   deductBalance(stake.value);
 
@@ -38,6 +40,13 @@ const handleSpin = async () => {
       spinning.value = false;
     });
   }
+};
+
+const togglePaylines = () => {
+  if (spinning.value) return;
+
+  paylinesVisible.value = !paylinesVisible.value;
+  slot.toggleAllPaylines(paylinesVisible.value);
 };
 
 onMounted(() => {
@@ -65,6 +74,13 @@ onUnmounted(() => slot.destroy());
       <div class="canvas-container" ref="pixiContainer"></div>
 
       <footer class="ui-footer">
+        <button
+          @click="togglePaylines"
+          :disabled="spinning"
+          class="btn toggle-btn"
+        >
+          {{ paylinesVisible ? "HIDE LINES" : "SHOW LINES" }}
+        </button>
         <div class="stake-controls">
           <button
             @click="decreaseStake()"
@@ -89,7 +105,7 @@ onUnmounted(() => slot.destroy());
           class="btn spin-btn"
           :class="{ 'is-spinning': !canSpin }"
         >
-          {{ spinning ? "SPINNING..." : "SPIN" }}
+          {{ spinning ? "..." : "SPIN" }}
         </button>
       </footer>
     </div>
@@ -146,6 +162,7 @@ onUnmounted(() => slot.destroy());
   font-weight: bold;
   font-size: 1.2rem;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  cursor: default;
 }
 
 .label {
@@ -175,6 +192,7 @@ onUnmounted(() => slot.destroy());
   font-weight: bold;
   min-width: 40px;
   text-align: center;
+  cursor: default;
 }
 
 .btn {
@@ -209,12 +227,22 @@ onUnmounted(() => slot.destroy());
 }
 
 .spin-btn {
+  min-width: 135px;
   padding: 15px 40px;
   border-radius: 30px;
   font-size: 1.2rem;
   letter-spacing: 2px;
   background: linear-gradient(135deg, #ec4899, #8b5cf6);
   box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);
+}
+.toggle-btn {
+  min-width: 160px;
+  padding: 15px 20px;
+  border-radius: 30px;
+  font-size: 1rem;
+  letter-spacing: 2px;
+  background: linear-gradient(35deg, #ed2699, #8c3df6);
+  box-shadow: 0 2.5px 10px rgba(236, 72, 153, 0.4);
 }
 
 .spin-btn:not(:disabled):hover {

@@ -22,10 +22,12 @@ export class SlotEngine {
   private reels: Reel[] = [];
   private slotTextures: any[] = [];
   private winSymbolGraphics: Graphics;
+  private paylinesGraphics: Graphics;
 
   constructor() {
     this.app = new Application();
     this.winSymbolGraphics = new Graphics();
+    this.paylinesGraphics = new Graphics();
   }
 
   public async init(canvasContainer: HTMLElement) {
@@ -118,6 +120,9 @@ export class SlotEngine {
     this.winSymbolGraphics.x = 50;
     this.winSymbolGraphics.y = 0;
     this.app.stage.addChild(this.winSymbolGraphics);
+    this.paylinesGraphics.x = 50;
+    this.paylinesGraphics.y = 0;
+    this.app.stage.addChild(this.paylinesGraphics);
   }
 
   private drawWinningSymbols(winningLines: WinningLine[]) {
@@ -139,8 +144,42 @@ export class SlotEngine {
     });
   }
 
+  public toggleAllPaylines(show: boolean) {
+    this.paylinesGraphics.clear();
+
+    if (!show) return;
+
+    const colors = [0xff0055, 0x00ff99, 0x00ccff, 0xffaa00, 0xcc00ff];
+
+    PAYLINES.forEach((linePath, index) => {
+      const color = colors[index % colors.length];
+
+      for (let i = 0; i < linePath.length; i++) {
+        const [col, row] = linePath[i];
+
+        const x = col * REEL_WIDTH + REEL_WIDTH / 2;
+        const y = row * SYMBOL_SIZE + SYMBOL_SIZE / 2;
+
+        if (i === 0) {
+          this.paylinesGraphics.moveTo(x, y);
+        } else {
+          this.paylinesGraphics.lineTo(x, y);
+        }
+      }
+
+      this.paylinesGraphics.stroke({
+        width: 3,
+        color: color,
+        alpha: 0.6,
+        join: "round",
+      });
+    });
+  }
+
   public startSpin() {
     this.winSymbolGraphics.clear();
+    this.paylinesGraphics.clear();
+
     this.reels.forEach((r) => {
       r.textureQueue = [];
 
