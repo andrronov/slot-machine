@@ -1,7 +1,20 @@
 {
   "name": "slot-machine",
+  "private": true,
   "version": "1.0.0",
   "description": "",
+  "license": "ISC",
+  "author": "",
+  "scripts": {
+    "dev": "pnpm --parallel run dev",
+    "build": "pnpm -r run build",
+    "format-check": "prettier --check .",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "eslint": "^10.2.0",
+    "prettier": "^3.8.2"
+  },
   "keywords": [
     "slot"
   ],
@@ -12,18 +25,5 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/andrronov/slot-machine.git"
-  },
-  "license": "ISC",
-  "author": "",
-  "type": "commonjs",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "format-check": "prettier --check .",
-    "format": "prettier --write ."
-  },
-  "devDependencies": {
-    "eslint": "^10.2.0",
-    "prettier": "^3.8.2"
   }
 }
