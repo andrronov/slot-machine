@@ -17,6 +17,7 @@ const {
 } = useSlotState();
 
 const paylinesVisible = ref(false);
+const winAmount = ref(0);
 const canSpin = computed(() => !spinning.value && balance.value >= stake.value);
 
 const handleSpin = async () => {
@@ -24,6 +25,7 @@ const handleSpin = async () => {
 
   spinning.value = true;
   paylinesVisible.value = false;
+  winAmount.value = 0;
   slot.startSpin();
   deductBalance(stake.value);
 
@@ -32,6 +34,7 @@ const handleSpin = async () => {
     slot.completeSpin(serverResult, () => {
       slot.checkWin(win, winningLines);
       addBalance(win);
+      winAmount.value = win;
       spinning.value = false;
     });
   } catch (err) {
@@ -64,6 +67,9 @@ onUnmounted(() => slot.destroy());
         <div class="stat-box">
           <span class="label">Balance:</span>
           <span class="value success">${{ balance }}</span>
+        </div>
+        <div v-if="winAmount > 0" class="stat-box">
+          <span class="value warning">Win! ${{ winAmount }}</span>
         </div>
         <div class="stat-box">
           <span class="label">Stake:</span>
@@ -119,14 +125,16 @@ onUnmounted(() => slot.destroy());
   display: flex;
   justify-content: center;
   align-items: center;
-  background: linear-gradient(to bottom, #000000, #0e3b2d);
+  background: linear-gradient(270deg, #0f2027, #203a43, #2c5364, #1c1c2b);
+  background-size: 600% 600%;
+  animation: gradientShift 38s ease infinite;
 }
 
 .slot-machine {
   display: flex;
   flex-direction: column;
   align-items: center;
-  background: #1a1a2e;
+  background: rgba(26, 26, 46, 0.35);
   padding: 24px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
@@ -139,7 +147,7 @@ onUnmounted(() => slot.destroy());
 .canvas-container {
   width: 640px;
   height: 325px;
-  background: #0f0f1a;
+  background: rgba(15, 15, 26, 0.55);
   border: 4px solid #2d2d44;
   border-radius: 12px;
   overflow: hidden;
@@ -253,5 +261,17 @@ onUnmounted(() => slot.destroy());
 .spin-btn.is-spinning {
   background: #374151;
   box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3);
+}
+
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 </style>

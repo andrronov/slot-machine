@@ -23,10 +23,11 @@ app.post("/spin", async (req, res) => {
   const { stake, mockError } = req.body;
   const { win, winningLines, serverResult } = checkWin(stake);
 
+  // server latency imitation
   const promise = new Promise((resolve, reject) => {
     setTimeout(() => {
       mockError ? reject(new Error("Timeout")) : resolve(true);
-    }, 500);
+    }, 650);
   });
 
   try {

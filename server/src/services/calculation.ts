@@ -62,11 +62,8 @@ const calculateWin = (matrix: SlotMatrix, stake: number) => {
 
 export const checkWin = (stake: number) => {
   const serverResult = generateResult();
-  console.log("result matrix:", serverResult);
 
   const { win, winningLines } = calculateWin(serverResult, stake);
-
-  console.log("win, lines", win, winningLines);
 
   return { win, winningLines, serverResult };
 };

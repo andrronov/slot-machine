@@ -1,8 +1,9 @@
 import { ref } from "vue";
+import { useLocalStorage } from "@vueuse/core";
 import type { SpinResult } from "../types";
 
 export const useSlotState = () => {
-  const balance = ref(500);
+  const balance = useLocalStorage("sm-balance", 500);
   const stake = ref(1);
   const spinning = ref(false);
 

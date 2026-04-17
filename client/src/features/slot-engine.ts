@@ -5,6 +5,7 @@ import {
   Sprite,
   BlurFilter,
   Graphics,
+  type Texture,
 } from "pixi.js";
 import gsap from "gsap";
 import {
@@ -20,7 +21,7 @@ import type { Reel, WinningLine, SlotMatrix } from "../types";
 export class SlotEngine {
   public app: Application;
   private reels: Reel[] = [];
-  private slotTextures: any[] = [];
+  private slotTextures: Texture[] = [];
   private winSymbolGraphics: Graphics;
   private paylinesGraphics: Graphics;
 
@@ -57,6 +58,15 @@ export class SlotEngine {
     ];
 
     this.slotTextures = await Promise.all(urls.map((url) => Assets.load(url)));
+  }
+
+  private buildGraphics() {
+    this.winSymbolGraphics.x = 50;
+    this.winSymbolGraphics.y = 0;
+    this.app.stage.addChild(this.winSymbolGraphics);
+    this.paylinesGraphics.x = 50;
+    this.paylinesGraphics.y = 0;
+    this.app.stage.addChild(this.paylinesGraphics);
   }
 
   private buildReels() {
@@ -117,12 +127,7 @@ export class SlotEngine {
     }
     this.app.stage.addChild(reelContainer);
 
-    this.winSymbolGraphics.x = 50;
-    this.winSymbolGraphics.y = 0;
-    this.app.stage.addChild(this.winSymbolGraphics);
-    this.paylinesGraphics.x = 50;
-    this.paylinesGraphics.y = 0;
-    this.app.stage.addChild(this.paylinesGraphics);
+    this.buildGraphics();
   }
 
   private drawWinningSymbols(winningLines: WinningLine[]) {
@@ -205,11 +210,9 @@ export class SlotEngine {
         );
       }
 
-      r.textureQueue.push(serverResult[i][3]);
-      r.textureQueue.push(serverResult[i][2]);
-      r.textureQueue.push(serverResult[i][1]);
-      r.textureQueue.push(serverResult[i][0]);
-      r.textureQueue.push(Math.floor(Math.random() * this.slotTextures.length));
+      for (let k = 3; k >= 0; k--) {
+        r.textureQueue.push(serverResult[i][k]);
+      }
 
       gsap.to(r, {
         position: targetPosition,

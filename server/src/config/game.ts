@@ -1,8 +1,8 @@
 export const SYMBOLS_MAP = {
-  0: { id: 0, name: "YinYang", payoutMultiplier: 5 },
-  1: { id: 1, name: "Coin", payoutMultiplier: 10 },
-  2: { id: 2, name: "Bonus", payoutMultiplier: 50 },
-  3: { id: 3, name: "Seven", payoutMultiplier: 100 },
+  0: { id: 0, name: "YinYang", payoutMultiplier: 1.5 },
+  1: { id: 1, name: "Coin", payoutMultiplier: 2.5 },
+  2: { id: 2, name: "Bonus", payoutMultiplier: 5 },
+  3: { id: 3, name: "Seven", payoutMultiplier: 10 },
 } as const;
 
 export const SYMBOLS_PER_REEL = 4 as const;
