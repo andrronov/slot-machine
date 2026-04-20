@@ -1,6 +1,6 @@
 export const SYMBOLS_MAP = {
-  0: { id: 0, name: "YinYang", payoutMultiplier: 1.5 },
-  1: { id: 1, name: "Coin", payoutMultiplier: 2.5 },
+  0: { id: 0, name: "YinYang", payoutMultiplier: 2 },
+  1: { id: 1, name: "Coin", payoutMultiplier: 3 },
   2: { id: 2, name: "Bonus", payoutMultiplier: 5 },
   3: { id: 3, name: "Seven", payoutMultiplier: 10 },
 } as const;

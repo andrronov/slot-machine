@@ -42,7 +42,7 @@ The frontend logic is intentionally decoupled into three distinct layers to maxi
 - [x] Implement backend logic and link with client
 - [x] Create and implement Paylines UI
 - [x] Move project to PNPM Workspaces and clean up spare data (configs & types)
-- [ ] Implement cash handling animations (for increasing and decreasing balance)
+- [x] Implement cash handling animations (for increasing and decreasing balance)
 - [ ] Add proper "Wild" symbol and its logic
 - [ ] Create "BIIIG WIIIN" animation
 - [ ] Upgrade UI: find cool textures, make whole visuals better

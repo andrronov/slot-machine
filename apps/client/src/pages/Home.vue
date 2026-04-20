@@ -1,5 +1,13 @@
 <script setup lang="ts">
-import { ref, useTemplateRef, computed, onMounted, onUnmounted } from "vue";
+import {
+  ref,
+  useTemplateRef,
+  computed,
+  onMounted,
+  onUnmounted,
+  watch,
+} from "vue";
+import gsap from "gsap";
 import { SlotEngine } from "../features/slot-engine";
 import { useSlotState } from "../composables/use-slot-state";
 
@@ -19,6 +27,7 @@ const {
 const paylinesVisible = ref(false);
 const winAmount = ref(0);
 const canSpin = computed(() => !spinning.value && balance.value >= stake.value);
+const displayBalance = ref(balance.value);
 
 const handleSpin = async () => {
   if (!canSpin.value) return;
@@ -58,6 +67,19 @@ onMounted(() => {
   }
 });
 onUnmounted(() => slot.destroy());
+
+watch(balance, (newVal) => {
+  const numDecimals = newVal.toString().split(".")[1]?.length ?? 0;
+
+  gsap.to(displayBalance, {
+    value: newVal,
+    duration: 1.25,
+    ease: "power2.out",
+    onUpdate: () => {
+      displayBalance.value = Number(displayBalance.value.toFixed(numDecimals));
+    },
+  });
+});
 </script>
 
 <template>
@@ -66,14 +88,16 @@ onUnmounted(() => slot.destroy());
       <header class="ui-header">
         <div class="stat-box">
           <span class="label">Balance:</span>
-          <span class="value success">${{ balance }}</span>
+          <span class="value success">${{ displayBalance }}</span>
         </div>
-        <div v-if="winAmount > 0" class="stat-box">
-          <span class="value warning">Win! ${{ winAmount }}</span>
-        </div>
-        <div class="stat-box">
-          <span class="label">Stake:</span>
-          <span class="value warning">${{ stake }}</span>
+        <div class="flex items-center gap-4">
+          <div v-if="winAmount > 0" class="stat-box">
+            <span class="value warning">Win! ${{ winAmount }}</span>
+          </div>
+          <div class="stat-box">
+            <span class="label">Stake:</span>
+            <span class="value warning">${{ stake }}</span>
+          </div>
         </div>
       </header>
 
@@ -179,6 +203,9 @@ onUnmounted(() => slot.destroy());
   font-size: 1rem;
 }
 
+.value {
+  font-variant-numeric: tabular-nums;
+}
 .value.success {
   color: #4ade80;
 }
