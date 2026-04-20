@@ -7,9 +7,11 @@ import {
   onUnmounted,
   watch,
 } from "vue";
+import { onKeyStroke } from "@vueuse/core";
 import gsap from "gsap";
 import { SlotEngine } from "../features/slot-engine";
 import { useSlotState } from "../composables/use-slot-state";
+import { Keys } from "../types";
 
 const pixiContainer = useTemplateRef<HTMLElement | null>("pixiContainer");
 const slot = new SlotEngine();
@@ -67,6 +69,13 @@ onMounted(() => {
   }
 });
 onUnmounted(() => slot.destroy());
+
+onKeyStroke(Keys.Space, () => {
+  handleSpin();
+});
+onKeyStroke(Keys.Backspace, () => {
+  togglePaylines();
+});
 
 watch(balance, (newVal) => {
   const numDecimals = newVal.toString().split(".")[1]?.length ?? 0;

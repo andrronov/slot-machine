@@ -1,8 +1,10 @@
+export const WILD_ID = 1;
+
 export const SYMBOLS_MAP = {
-  0: { id: 0, name: "YinYang", payoutMultiplier: 2 },
-  1: { id: 1, name: "Coin", payoutMultiplier: 3 },
-  2: { id: 2, name: "Bonus", payoutMultiplier: 5 },
-  3: { id: 3, name: "Seven", payoutMultiplier: 10 },
+  0: { id: 0, name: "YinYang", payoutMultiplier: 1.5 },
+  1: { id: WILD_ID, name: "Wild", payoutMultiplier: 1 },
+  2: { id: 2, name: "Bonus", payoutMultiplier: 2 },
+  3: { id: 3, name: "Seven", payoutMultiplier: 3 },
 } as const;
 
 export const PAYLINES = [
@@ -45,5 +47,13 @@ export const PAYLINES = [
     [3, 2],
     [4, 1],
     [5, 0],
+  ],
+  [
+    [0, 3],
+    [1, 2],
+    [2, 1],
+    [3, 1],
+    [4, 2],
+    [5, 3],
   ],
 ] as const;

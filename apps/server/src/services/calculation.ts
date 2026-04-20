@@ -1,5 +1,5 @@
 import type { SlotMatrix, WinningLine } from "@slot-machine/shared/types";
-import { PAYLINES, SYMBOLS_MAP } from "@slot-machine/shared/config";
+import { PAYLINES, SYMBOLS_MAP, WILD_ID } from "@slot-machine/shared/config";
 import { REELS_COUNT, SYMBOLS_PER_REEL } from "../config/game";
 
 type SymbolId = keyof typeof SYMBOLS_MAP;
@@ -25,15 +25,18 @@ const calculateWin = (matrix: SlotMatrix, stake: number) => {
     const line = PAYLINES[i];
 
     const firstSymbolPos = line[0];
-    const firstSymbolId = matrix[firstSymbolPos[0]][firstSymbolPos[1]];
-
+    let targetSymbolId = matrix[firstSymbolPos[0]][firstSymbolPos[1]];
     let matchCount = 1;
 
     for (let j = 1; j < line.length; j++) {
       const pos = line[j];
       const symbolId = matrix[pos[0]][pos[1]];
 
-      if (symbolId === firstSymbolId) {
+      if (targetSymbolId === WILD_ID && symbolId !== WILD_ID) {
+        targetSymbolId = symbolId;
+      }
+
+      if (symbolId === targetSymbolId || symbolId === WILD_ID) {
         matchCount++;
       } else {
         break;
@@ -41,14 +44,14 @@ const calculateWin = (matrix: SlotMatrix, stake: number) => {
     }
 
     if (matchCount >= 3) {
-      const symbolData = SYMBOLS_MAP[firstSymbolId as SymbolId];
+      const symbolData = SYMBOLS_MAP[targetSymbolId as SymbolId];
       const winAmount =
         stake * symbolData.payoutMultiplier * (matchCount * 0.5);
       win += winAmount;
 
       winningLines.push({
         lineIndex: i,
-        symbolId: firstSymbolId,
+        symbolId: targetSymbolId,
         matchCount: matchCount,
         amount: winAmount,
       });
