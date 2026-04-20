@@ -155,7 +155,7 @@ export class SlotEngine {
 
     if (!show) return;
 
-    const colors = [0xff0055, 0x00ff99, 0x00ccff, 0xffaa00, 0xcc00ff];
+    const colors = [0xff0055, 0x00ff99, 0x00ccff, 0xffaa00, 0xcc00ff, 0xab00ff];
 
     PAYLINES.forEach((linePath, index) => {
       const color = colors[index % colors.length];
