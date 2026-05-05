@@ -8,7 +8,7 @@ import {
   type Texture,
 } from "pixi.js";
 import gsap from "gsap";
-import { PAYLINES } from "@slot-machine/shared/config";
+import { PAYLINES, SYMBOLS_MAP } from "@slot-machine/shared/config";
 import type { WinningLine, SlotMatrix } from "@slot-machine/shared/types";
 import {
   IS_PROD,
@@ -41,6 +41,8 @@ export class SlotEngine {
       backgroundAlpha: 0,
       antialias: true,
       resizeTo: canvasContainer,
+      resolution: window.devicePixelRatio || 1,
+      autoDensity: true,
     });
 
     canvasContainer.appendChild(this.app.canvas);
@@ -51,14 +53,18 @@ export class SlotEngine {
   }
 
   private async loadAssets() {
-    const urls = [
-      "https://i.imgur.com/hpjuqb1.png",
-      "https://i.imgur.com/S2GtCJP.png",
-      "https://i.imgur.com/YYoVVYv.png",
-      "https://i.imgur.com/9za3Pl0.png",
-    ];
+    const urls = Object.values(SYMBOLS_MAP).map((symbol) => symbol.img);
 
-    this.slotTextures = await Promise.all(urls.map((url) => Assets.load(url)));
+    this.slotTextures = await Promise.all(
+      urls.map((url) =>
+        Assets.load({
+          src: url,
+          data: {
+            mipmap: true,
+          },
+        }),
+      ),
+    );
   }
 
   private buildGraphics() {
@@ -214,6 +220,7 @@ export class SlotEngine {
       for (let k = 3; k >= 0; k--) {
         r.textureQueue.push(serverResult[i][k]);
       }
+      r.textureQueue.push(Math.floor(Math.random() * this.slotTextures.length));
 
       gsap.to(r, {
         position: targetPosition,

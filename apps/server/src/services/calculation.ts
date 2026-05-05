@@ -1,5 +1,10 @@
 import type { SlotMatrix, WinningLine } from "@slot-machine/shared/types";
-import { PAYLINES, SYMBOLS_MAP, WILD_ID } from "@slot-machine/shared/config";
+import {
+  PAYLINES,
+  SYMBOLS_MAP,
+  WILD_ID,
+  SYMBOLS_COUNT,
+} from "@slot-machine/shared/config";
 import { REELS_COUNT, SYMBOLS_PER_REEL } from "../config/game";
 
 type SymbolId = keyof typeof SYMBOLS_MAP;
@@ -10,7 +15,7 @@ const generateResult = (): SlotMatrix => {
   for (let i = 0; i < REELS_COUNT; i++) {
     const reel: number[] = [];
     for (let j = 0; j < SYMBOLS_PER_REEL; j++) {
-      reel.push(Math.floor(Math.random() * SYMBOLS_PER_REEL));
+      reel.push(Math.floor(Math.random() * SYMBOLS_COUNT));
     }
     matrix.push(reel);
   }

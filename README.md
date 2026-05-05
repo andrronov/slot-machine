@@ -47,4 +47,5 @@ The frontend logic is intentionally decoupled into three distinct layers to maxi
 - [ ] Create "BIIIG WIIIN" animation
 - [ ] Upgrade UI: find cool textures, make whole visuals better
 - [ ] Add symbols weight table
+- [ ] Create Scatter symbol and make a "Bonus Spins"
 - [ ] Create sound effects and background music

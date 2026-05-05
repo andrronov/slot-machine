@@ -1,11 +1,69 @@
 export const WILD_ID = 1;
 
 export const SYMBOLS_MAP = {
-  0: { id: 0, name: "YinYang", payoutMultiplier: 1.5 },
-  1: { id: WILD_ID, name: "Wild", payoutMultiplier: 1 },
-  2: { id: 2, name: "Bonus", payoutMultiplier: 2 },
-  3: { id: 3, name: "Seven", payoutMultiplier: 3 },
+  0: {
+    id: 0,
+    name: "Circle",
+    payoutMultiplier: 0.5,
+    img: "/img/symbols/circle.png",
+  },
+  1: {
+    id: WILD_ID,
+    name: "Wild",
+    payoutMultiplier: 1,
+    img: "/img/symbols/wild.png",
+  },
+  2: {
+    id: 2,
+    name: "Hexagon",
+    payoutMultiplier: 0.5,
+    img: "/img/symbols/hexagon.png",
+  },
+  3: {
+    id: 3,
+    name: "Prism",
+    payoutMultiplier: 0.5,
+    img: "/img/symbols/prism.png",
+  },
+  4: {
+    id: 4,
+    name: "Aura Drop",
+    payoutMultiplier: 1.5,
+    img: "/img/symbols/aura-drop.png",
+  },
+  5: {
+    id: 5,
+    name: "Square",
+    payoutMultiplier: 0.5,
+    img: "/img/symbols/square.png",
+  },
+  6: {
+    id: 6,
+    name: "Triangle",
+    payoutMultiplier: 0.5,
+    img: "/img/symbols/triangle.png",
+  },
+  7: {
+    id: 7,
+    name: "Blue Lotus",
+    payoutMultiplier: 1.5,
+    img: "/img/symbols/blue-lotus.png",
+  },
+  8: {
+    id: 8,
+    name: "Infinity Ring",
+    payoutMultiplier: 2,
+    img: "/img/symbols/infinity-ring.png",
+  },
+  9: {
+    id: 9,
+    name: "Light Feather",
+    payoutMultiplier: 1.5,
+    img: "/img/symbols/light-feather.png",
+  },
 } as const;
+
+export const SYMBOLS_COUNT = Object.keys(SYMBOLS_MAP).length;
 
 export const PAYLINES = [
   [
