@@ -9,6 +9,7 @@ import {
 } from "vue";
 import { onKeyStroke } from "@vueuse/core";
 import gsap from "gsap";
+import Paytable from "../components/Paytable.vue";
 import { SlotEngine } from "../features/slot-engine";
 import { useSlotState } from "../composables/use-slot-state";
 import { Keys } from "../types";
@@ -27,9 +28,12 @@ const {
 } = useSlotState();
 
 const paylinesVisible = ref(false);
+const paytableVisible = ref(false);
+
 const winAmount = ref(0);
+const rawBalance = ref(balance.value);
 const canSpin = computed(() => !spinning.value && balance.value >= stake.value);
-const displayBalance = ref(balance.value);
+const displayBalance = computed(() => rawBalance.value.toFixed(2));
 
 const handleSpin = async () => {
   if (!canSpin.value) return;
@@ -78,14 +82,10 @@ onKeyStroke(Keys.Backspace, () => {
 });
 
 watch(balance, (newVal) => {
-  const numDecimals = newVal.toString().split(".")[1]?.length ?? 0;
-  gsap.to(displayBalance, {
+  gsap.to(rawBalance, {
     value: newVal,
     duration: 1.25,
     ease: "power2.out",
-    onUpdate: () => {
-      displayBalance.value = Number(displayBalance.value.toFixed(numDecimals));
-    },
   });
 });
 </script>
@@ -94,9 +94,11 @@ watch(balance, (newVal) => {
   <div class="w-full h-screen flex items-center justify-center">
     <div class="slot-machine">
       <header>
-        <div class="stat-box">
+        <div class="stat-box min-w-45 justify-between">
           <span class="label">Balance:</span>
-          <span class="value text-success">${{ displayBalance }}</span>
+          <span class="value text-success text-right min-w-20 inline-block">
+            ${{ displayBalance }}
+          </span>
         </div>
         <div class="flex items-center gap-4">
           <div v-if="winAmount > 0" class="stat-box">
@@ -106,6 +108,13 @@ watch(balance, (newVal) => {
             <span class="label">Stake:</span>
             <span class="value text-warning">${{ stake }}</span>
           </div>
+          <button
+            @click="paytableVisible = true"
+            class="btn icon-btn"
+            title="Paytable"
+          >
+            i
+          </button>
         </div>
       </header>
 
@@ -148,11 +157,6 @@ watch(balance, (newVal) => {
       </footer>
     </div>
   </div>
-</template>
 
-<style scoped>
-.spin-btn.is-spinning {
-  background: #374151;
-  box-shadow: inset 0 4px 6px rgba(0, 0, 0, 0.3);
-}
-</style>
+  <Paytable v-model="paytableVisible" />
+</template>

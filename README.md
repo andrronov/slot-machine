@@ -2,7 +2,7 @@
 
 A Full-stack slot machine engine built with modern web technologies. This project demonstrates a complete iGaming flow, from server-side RNG (Random Number Generation) matrix calculations to high-fidelity, synchronized WebGL animations on the client
 
-![demonstration img](readme/demonstration.png)
+![demonstration img](readme/demonstration-v2.png)
 
 ## ✨ Key Features
 
@@ -45,7 +45,7 @@ The frontend logic is intentionally decoupled into three distinct layers to maxi
 - [x] Implement cash handling animations (for increasing and decreasing balance)
 - [x] Add proper "Wild" symbol and its logic
 - [ ] Create "BIIIG WIIIN" animation
-- [ ] Upgrade UI: find cool textures, make whole visuals better
-- [ ] Add symbols weight table
+- [x] Upgrade UI: find cool textures, make whole visuals better
+- [x] Add symbols weight table
 - [ ] Create Scatter symbol and make a "Bonus Spins"
 - [ ] Create sound effects and background music
