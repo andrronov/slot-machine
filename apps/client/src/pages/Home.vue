@@ -66,6 +66,9 @@ const togglePaylines = () => {
   paylinesVisible.value = !paylinesVisible.value;
   slot.toggleAllPaylines(paylinesVisible.value);
 };
+const togglePaytable = () => {
+  paytableVisible.value = !paytableVisible.value;
+};
 
 onMounted(() => {
   if (pixiContainer.value) {
@@ -79,6 +82,12 @@ onKeyStroke(Keys.Space, () => {
 });
 onKeyStroke(Keys.Backspace, () => {
   togglePaylines();
+});
+onKeyStroke(Keys.ArrowLeft, () => {
+  decreaseStake();
+});
+onKeyStroke(Keys.ArrowRight, () => {
+  increaseStake();
 });
 
 watch(balance, (newVal) => {
@@ -96,7 +105,7 @@ watch(balance, (newVal) => {
       <header>
         <div class="stat-box min-w-45 justify-between">
           <span class="label">Balance:</span>
-          <span class="value text-success text-right min-w-20 inline-block">
+          <span class="value text-success text-right min-w-16 inline-block">
             ${{ displayBalance }}
           </span>
         </div>
@@ -108,11 +117,7 @@ watch(balance, (newVal) => {
             <span class="label">Stake:</span>
             <span class="value text-warning">${{ stake }}</span>
           </div>
-          <button
-            @click="paytableVisible = true"
-            class="btn icon-btn"
-            title="Paytable"
-          >
+          <button @click="togglePaytable" class="btn icon-btn" title="Paytable">
             i
           </button>
         </div>

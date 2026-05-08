@@ -17,7 +17,7 @@ export const useSlotState = () => {
   };
 
   const increaseStake = () => {
-    stake.value += 1;
+    stake.value = Math.min(10, stake.value + 1);
   };
   const decreaseStake = () => {
     stake.value = Math.max(1, stake.value - 1);
