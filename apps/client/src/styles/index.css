@@ -26,8 +26,7 @@
     background: linear-gradient(135deg, #a1c4fd 0%, #c2e9fb 50%, #e0c3fd 100%);
     background-size: 400% 400%;
     animation: gradientShift 5.5s ease infinite;
-    font-family:
-      -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
     color: #1d1d1f;
   }
 
