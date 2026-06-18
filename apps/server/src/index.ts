@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import "dotenv/config";
-import { checkWin } from "./services/calculation";
+import { checkWin } from "./services/calculation.js";
 
 const PORT = process.env.PORT;
 const app = express();

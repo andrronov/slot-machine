@@ -5,7 +5,7 @@ import {
   WILD_ID,
   SYMBOLS_COUNT,
 } from "@slot-machine/shared/config";
-import { REELS_COUNT, SYMBOLS_PER_REEL } from "../config/game";
+import { REELS_COUNT, SYMBOLS_PER_REEL } from "../config/game.js";
 
 type SymbolId = keyof typeof SYMBOLS_MAP;
 
