@@ -28,14 +28,17 @@
     animation: gradientShift 5.5s ease infinite;
     font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
     color: #1d1d1f;
+    overflow-x: hidden;
   }
 
   header,
   footer {
+    position: relative;
     display: flex;
     justify-content: space-between;
     align-items: center;
     width: 100%;
+    gap: 16px;
   }
 }
 
@@ -49,13 +52,16 @@
 
 @layer components {
   .slot-machine {
+    position: relative;
     display: flex;
     flex-direction: column;
     align-items: center;
     padding: 32px;
     border-radius: 32px;
-    width: fit-content;
+    width: 100%;
+    max-width: 740px;
     margin: 0 auto;
+    box-sizing: border-box;
 
     background: rgba(255, 255, 255, 0.25);
     backdrop-filter: blur(40px);
@@ -179,8 +185,8 @@
   }
 
   .canvas-container {
-    width: 640px;
-    height: 325px;
+    width: 100%;
+    aspect-ratio: 640 / 325;
     background: rgba(0, 0, 0, 0.05);
     border-radius: 20px;
     overflow: hidden;
@@ -190,5 +196,54 @@
       inset 0 1px 3px rgba(0, 0, 0, 0.2);
     border: 1px solid rgba(255, 255, 255, 0.4);
     border-bottom: 1px solid rgba(255, 255, 255, 0.8);
+  }
+
+  @media (max-width: 768px) {
+    .slot-machine {
+      padding: 10px 8px;
+      border-radius: 24px;
+    }
+
+    body {
+      padding: 12px;
+      overflow: hidden;
+    }
+
+    header {
+      flex-direction: row;
+      width: 100%;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    footer {
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .stat-box {
+      font-size: 1rem;
+      padding: 8px 14px;
+    }
+    .icon-btn {
+      font-size: 1rem;
+    }
+    .stake-controls {
+      padding: 2px;
+    }
+
+    .toggle-btn,
+    .spin-btn {
+      width: 100%;
+      justify-content: center;
+      padding: 8px;
+    }
+
+    .spin-btn {
+      padding: 10px;
+      font-size: 1.25rem;
+    }
   }
 }

@@ -23,13 +23,22 @@ export class SlotEngine {
   public app: Application;
   private reels: Reel[] = [];
   private slotTextures: Texture[] = [];
+
+  private mainContainer: Container;
   private winSymbolGraphics: Graphics;
   private paylinesGraphics: Graphics;
 
+  private gameWidth: number;
+  private gameHeight: number;
+
   constructor() {
     this.app = new Application();
+    this.mainContainer = new Container();
     this.winSymbolGraphics = new Graphics();
     this.paylinesGraphics = new Graphics();
+
+    this.gameWidth = REEL_WIDTH * REELS_COUNT + 100;
+    this.gameHeight = SYMBOL_SIZE * 4;
   }
 
   public async init(canvasContainer: HTMLElement) {
@@ -47,9 +56,29 @@ export class SlotEngine {
 
     canvasContainer.appendChild(this.app.canvas);
 
+    this.app.stage.addChild(this.mainContainer);
+
     await this.loadAssets();
     this.buildReels();
     this.startTicker();
+
+    window.addEventListener("resize", this.handleResize);
+    this.handleResize();
+  }
+
+  private handleResize() {
+    const screenWidth = this.app.screen.width;
+    const screenHeight = this.app.screen.height;
+
+    const scale = Math.min(
+      screenWidth / this.gameWidth,
+      screenHeight / this.gameHeight,
+    );
+
+    this.mainContainer.scale.set(scale);
+
+    this.mainContainer.x = (screenWidth - this.gameWidth * scale) / 2;
+    this.mainContainer.y = (screenHeight - this.gameHeight * scale) / 2;
   }
 
   private async loadAssets() {
@@ -70,10 +99,11 @@ export class SlotEngine {
   private buildGraphics() {
     this.winSymbolGraphics.x = 50;
     this.winSymbolGraphics.y = 0;
-    this.app.stage.addChild(this.winSymbolGraphics);
+    this.mainContainer.addChild(this.winSymbolGraphics);
+
     this.paylinesGraphics.x = 50;
     this.paylinesGraphics.y = 0;
-    this.app.stage.addChild(this.paylinesGraphics);
+    this.mainContainer.addChild(this.paylinesGraphics);
   }
 
   private buildReels() {
@@ -91,8 +121,7 @@ export class SlotEngine {
       )
       .fill("0x000000");
 
-    this.app.stage.addChild(mask);
-
+    this.mainContainer.addChild(mask);
     reelContainer.mask = mask;
 
     for (let i = 0; i < REELS_COUNT; i++) {
@@ -132,8 +161,8 @@ export class SlotEngine {
       }
       this.reels.push(reel);
     }
-    this.app.stage.addChild(reelContainer);
 
+    this.mainContainer.addChild(reelContainer);
     this.buildGraphics();
   }
 
@@ -292,6 +321,7 @@ export class SlotEngine {
   }
 
   public destroy() {
+    window.removeEventListener("resize", this.handleResize);
     this.app.destroy(true, true);
   }
 }

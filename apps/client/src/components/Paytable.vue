@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 import { SYMBOLS_MAP } from "@slot-machine/shared";
 
 const showPaytable = defineModel({ default: false, required: true });

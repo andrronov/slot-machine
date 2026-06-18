@@ -75,6 +75,7 @@ onMounted(() => {
     slot.init(pixiContainer.value);
   }
 });
+
 onUnmounted(() => slot.destroy());
 
 onKeyStroke(Keys.Space, () => {
@@ -110,7 +111,10 @@ watch(balance, (newVal) => {
           </span>
         </div>
         <div class="flex items-center gap-4">
-          <div v-if="winAmount > 0" class="stat-box">
+          <div
+            v-if="winAmount > 0"
+            class="stat-box absolute md:static -top-16 left-0 w-full md:w-auto justify-center"
+          >
             <span class="value text-warning">Win! ${{ winAmount }}</span>
           </div>
           <div class="stat-box">
@@ -126,29 +130,31 @@ watch(balance, (newVal) => {
       <div class="canvas-container" ref="pixiContainer"></div>
 
       <footer>
-        <button
-          @click="togglePaylines"
-          :disabled="spinning"
-          class="btn toggle-btn"
-        >
-          {{ paylinesVisible ? "HIDE LINES" : "SHOW LINES" }}
-        </button>
-        <div class="stake-controls">
+        <div class="flex items-center justify-between gap-3 w-full">
           <button
-            @click="decreaseStake()"
-            :disabled="spinning || stake <= 1"
-            class="btn icon-btn"
+            @click="togglePaylines"
+            :disabled="spinning"
+            class="btn toggle-btn"
           >
-            -
+            {{ paylinesVisible ? "HIDE LINES" : "SHOW LINES" }}
           </button>
-          <span class="stake-display">${{ stake }}</span>
-          <button
-            @click="increaseStake()"
-            :disabled="spinning || stake >= 10"
-            class="btn icon-btn"
-          >
-            +
-          </button>
+          <div class="stake-controls">
+            <button
+              @click="decreaseStake()"
+              :disabled="spinning || stake <= 1"
+              class="btn icon-btn"
+            >
+              -
+            </button>
+            <span class="stake-display">${{ stake }}</span>
+            <button
+              @click="increaseStake()"
+              :disabled="spinning || stake >= 10"
+              class="btn icon-btn"
+            >
+              +
+            </button>
+          </div>
         </div>
 
         <button
