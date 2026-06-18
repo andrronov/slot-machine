@@ -24,7 +24,7 @@ export const useSlotState = () => {
   };
 
   const fetchResult = async () => {
-    const result = await fetch("http://localhost:3124/spin", {
+    const result = await fetch(`${import.meta.env.VITE_API_URL}/spin`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
